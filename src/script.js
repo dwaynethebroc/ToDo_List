@@ -1,20 +1,31 @@
 import "./styles.css";
 
+
+
 class stickyNote {
-    constructor(title, dueDate, priority, toDos, notes){
+    static stickyNotes = [];
+
+    constructor(title, dueDate, priority, project, toDos, notes){
         this.title = title;
         this.dueDate = dueDate;
         this.priority = priority;
+        this.project = project;
         this.toDos = toDos;
         this.notes = notes;
+
+        stickyNote.stickyNotes.push(this);
     }
-
-
 }
 
 class DOM_Elements {
 
     createStickyNoteForm() {
+        //If a current task is expanded, delete and then create form
+
+        // if (form) {
+        //     form.remove();
+        // }
+
         // Create the form using JavaScript
         const formContainer = document.getElementById('project');
     
@@ -166,32 +177,37 @@ class DOM_Elements {
             project
           };
 
-          console.log(task.title, task.dueDate, task.priority, task.todos, task.notes, task.project)
-          
-          DOM.addStickyNotetoTasksDiv(task.title, task.dueDate, task.priority, task.todos, task.notes, task.project);
+          let sticky = new stickyNote(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
+          DOM.addStickyNotes(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
           //create new task div with inputed information and move to expanded view section
           //seperate function to add also to projects tab
         });
     }
 
-    addStickyNotetoTasksDiv(title, dueDate, priority, todos, notes, project) {
+    addStickyNotes(title, dueDate, priority, project, todos, notes) {
         const todayDiv = document.getElementById('today');
         const weekDiv = document.getElementById('thisWeek');
         const monthDiv = document.getElementById('thisMonth');
-        
-        const taskDiv = document.createElement('div');
-        taskDiv.classList.add('task')
-        taskDiv.innerText = `
-        <h3>Task Summary</h3>
-        <p><strong>Title:</strong> ${title}</p>
-        <p><strong>Due Date:</strong> ${dueDate}</p>
-        <p><strong>Priority:</strong> ${priority}</p>
-        <p><strong>Project:</strong> ${project}</p>
-        <p><strong>To-Dos:</strong> ${todos.join(', ')}</p>
-        <p><strong>Notes:</strong> ${notes}</p>
-      `;
+        const futureDiv = document.getElementById('futureDiv');
 
-        console.log(taskDiv);
+        const shortenedDate = dueDate.toISOString().split('T')[0];
+
+        const taskDiv = document.createElement('div');
+        taskDiv.classList.add('task');
+        taskDiv.innerHTML = `<strong>Title:</strong> ${title} <strong>Due Date:</strong> ${shortenedDate}`;
+        taskDiv.source_data = {title, dueDate, priority, project, todos, notes}
+        taskDiv.addEventListener('click', () => this.expandStickyNote(taskDiv.source_data))
+
+
+        if (priority === "high"){
+            taskDiv.style.backgroundColor = "red";
+        } 
+        else if (priority === "medium"){
+            taskDiv.style.backgroundColor = "yellow";
+        }
+        else {
+            taskDiv.style.backgroundColor = "green";
+        }
 
         //function which div does the date fall into
         //returns today, week, month, future
@@ -211,12 +227,14 @@ class DOM_Elements {
             
             monthDiv.appendChild(taskDiv);
         } 
+        else {
+            futureDiv.appendChild(taskDiv);
+        }
     }
 
     whichDateOfTask(task_date) {
         let taskGroup = '';
 
-        console.log(task_date);
         
         const currentDate = new Date();
         const currentDay = currentDate.getDate();
@@ -245,9 +263,130 @@ class DOM_Elements {
         else if (task_date > lastday && taskMonth === currentMonth && currentYear === taskYear){
             taskGroup = 'thisMonth';
         }
-        console.log(taskGroup);
+
         return taskGroup
     }
+
+    expandStickyNote(stickyNote_object) {
+        const currentProjectDiv = document.getElementById('project');
+
+        // Remove the current form
+        const form = document.getElementById('taskForm');
+        if (form) {
+            form.remove();
+        };
+
+        if (currentProjectDiv.hasChildNodes()) {
+            while (currentProjectDiv.firstChild) {
+                currentProjectDiv.removeChild(currentProjectDiv.firstChild);
+              }
+        };
+
+        // Create the expanded view container
+        const expandedView = document.createElement('div');
+        expandedView.classList.add('expanded-view');
+        
+
+        // Populate expanded view with sticky note details
+        expandedView.innerHTML = `
+            <h3>Task Details</h3>
+            <p><strong>Title:</strong> ${stickyNote_object.title}</p>
+            <p><strong>Due Date:</strong> ${stickyNote_object.dueDate.toDateString()}</p>
+            <p><strong>Priority:</strong> ${stickyNote_object.priority}</p>
+            <p><strong>Project:</strong> ${stickyNote_object.project}</p>
+            <p><strong>To-Dos:</strong> ${stickyNote_object.todos}</p>
+            <p><strong>Notes:</strong> ${stickyNote_object.notes}</p>
+        `;
+
+        // Create Delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete');
+        deleteButton.innerText = 'Delete Task';
+        deleteButton.addEventListener('click', () => {
+            console.log(stickyNote.stickyNotes);
+            // Delete the task from stickyNotes array
+            stickyNote.stickyNotes = stickyNote.stickyNotes.filter(note => 
+                note.title !== stickyNote_object.title || 
+                note.dueDate.toISOString() !== stickyNote_object.dueDate.toISOString() ||
+                note.priority !== stickyNote_object.priority
+            );
+            console.log(stickyNote.stickyNotes);
+            expandedView.remove();  // Remove the expanded view after deletion
+            this.resetTaskDivs();
+            this.populateTasks(stickyNote.stickyNotes);
+            this.createStickyNoteForm();  // Recreate the form
+        });
+
+        const closeButton = document.createElement('button');
+        closeButton.innerText = 'Close';
+        closeButton.addEventListener('click', () => {
+            expandedView.remove();  // Remove the expanded view when close button is clicked
+            this.createStickyNoteForm();  // Recreate the form
+        });
+
+        expandedView.appendChild(deleteButton);
+        expandedView.appendChild(closeButton);
+
+        // Append expanded view to the document
+        currentProjectDiv.appendChild(expandedView);
+    }
+
+    clearTasks() {
+        const todayDiv = document.getElementById('today');
+        const weekDiv = document.getElementById('thisWeek');
+        const monthDiv = document.getElementById('thisMonth');
+        const futureDiv = document.getElementById('futureDiv');
+
+        const divArray = [todayDiv, weekDiv, monthDiv, futureDiv];
+
+        divArray.forEach((div) => {
+            while (div.firstChild) {
+                 div.removeChild(div.firstChild);
+            }
+        });
+    }
+
+    resetTaskDivs(){
+
+        const expandedTasksDiv = document.getElementById('tasks')
+
+        const todayDiv = document.getElementById('today');
+        const weekDiv = document.getElementById('thisWeek');
+        const monthDiv = document.getElementById('thisMonth');
+        const futureDiv = document.getElementById('futureDiv');
+
+        todayDiv.innerHTML = '';
+        weekDiv.innerHTML = '';
+        monthDiv.innerHTML = '';
+        futureDiv.innerHTML = '';
+
+            // Create and append headings as <p> tags for each div
+        const todayHeading = document.createElement('p');
+        todayHeading.innerText = 'Today';
+        todayDiv.appendChild(todayHeading);
+
+        const weekHeading = document.createElement('p');
+        weekHeading.innerText = 'This Week';
+        weekDiv.appendChild(weekHeading);
+
+        const monthHeading = document.createElement('p');
+        monthHeading.innerText = 'This Month';
+        monthDiv.appendChild(monthHeading);
+
+        const futureHeading = document.createElement('p');
+        futureHeading.innerText = 'Future Tasks';
+        futureDiv.appendChild(futureHeading);
+    }
+
+    populateTasks(objectTaskArray) {
+        // Reference the expanded tasks div
+        const expandedTasksDiv = document.getElementById('tasks');
+    
+        // If there are tasks in the array, add them to the appropriate divs
+        objectTaskArray.forEach((note) => {
+            this.addStickyNotes(note.title, note.dueDate, note.priority, note.project, note.todos, note.notes);
+        });
+    }    
 }
 
 

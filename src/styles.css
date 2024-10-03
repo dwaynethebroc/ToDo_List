@@ -26,7 +26,8 @@ html, body {
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
+    padding: 5px;
 }
 
 .current_project_view {
@@ -42,6 +43,24 @@ html, body {
   .form-group {
     margin-bottom: 15px;
   }
+
+  .task {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: solid black 1px;
+    color: #000000;
+    padding: 5px;
+    border-radius: 20px;
+  }
+
+  .task_groups {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
   label {
     display: block;
     margin-bottom: 5px;
