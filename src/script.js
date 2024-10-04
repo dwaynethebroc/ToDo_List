@@ -22,6 +22,8 @@ class DOM_Elements {
     createStickyNoteForm() {
         // Create the form using JavaScript
         const formContainer = document.getElementById('project');
+
+        formContainer.innerHTML = ``;
     
         // Create form element
         const form = document.createElement('form');
@@ -175,6 +177,8 @@ class DOM_Elements {
           let sticky = new stickyNote(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
           DOM.addStickyNotes(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
           DOM.populateProjects(projects, stickyNote.stickyNotes);
+                  // Update the project dropdown and populate projects without calling a separate function
+          DOM.createStickyNoteForm();
           //create new task div with inputed information and move to expanded view section
           //seperate function to add also to projects tab
         });
@@ -396,6 +400,19 @@ class DOM_Elements {
         const myProjectsDiv = document.getElementById('projectsList')
         myProjectsDiv.innerHTML = ''; // Reset the list before adding new projects
 
+        //Create an All projects div that allows user to see all tasks
+
+        const allProjectsDiv = document.createElement('div');
+        allProjectsDiv.classList.add('allProjectsDiv');
+        allProjectsDiv.innerText = 'All Projects';
+
+        allProjectsDiv.addEventListener('click', () => {
+            this.clearTasks();
+            this.resetTaskDivs();
+            this.populateTasks(taskData);
+        })
+
+
         activeProjects.forEach((project) => {
             const projectDiv = document.createElement("div");
             projectDiv.classList.add('projectDiv');
@@ -409,7 +426,7 @@ class DOM_Elements {
                 this.populateTasks(filteredTasks);
             })
 
-
+            myProjectsDiv.prepend(allProjectsDiv);
             myProjectsDiv.appendChild(projectDiv);
         });
 
