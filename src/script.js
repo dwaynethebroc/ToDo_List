@@ -315,13 +315,13 @@ class DOM_Elements {
             todoLI.classList.add('todoLI');
 
             const todoLabel = document.createElement("label");
-            todoLabel.htmlFor = "id";
+            todoLabel.htmlFor = todo;
             todoLabel.appendChild(document.createTextNode(todo))
             
             const checkbox = document.createElement('input');
             checkbox.type = "checkbox";
             checkbox.name = "checks";
-            checkbox.value = todo;
+            checkbox.id = todo;
             checkbox.classList.add('checkbox');
 
             todoLI.appendChild(checkbox);
