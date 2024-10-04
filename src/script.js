@@ -181,7 +181,7 @@ class DOM_Elements {
           };
 
           let sticky = new stickyNote(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
-          DOM.addStickyNotes(sticky.title, sticky.dueDate, sticky.priority, sticky.project, sticky.todos, sticky.notes);
+          DOM.addStickyNotes(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
           DOM.populateProjects(DOM_Elements.projects, stickyNote.stickyNotes);
                   // Update the project dropdown and populate projects without calling a separate function
           DOM.createStickyNoteForm();
@@ -202,6 +202,7 @@ class DOM_Elements {
         taskDiv.classList.add('task');
         taskDiv.innerHTML = `<strong>Title:</strong> ${title} <strong>Due Date:</strong> ${shortenedDate}`;
         taskDiv.source_data = {title, dueDate, priority, project, todos, notes}
+        console.log(taskDiv.source_data);
         taskDiv.addEventListener('click', () => this.expandStickyNote(taskDiv.source_data))
 
 
@@ -291,8 +292,43 @@ class DOM_Elements {
         // Create the expanded view container
         const expandedView = document.createElement('div');
         expandedView.classList.add('expanded-view');
-        
 
+        //create a ul div
+        const todoDiv = document.createElement('div');
+        todoDiv.id = "todoDiv";
+
+        //create paragraph tag title
+        const paraText = document.createElement('p');
+        paraText.innerText = 'To Dos:';
+        todoDiv.appendChild(paraText);
+
+        //div for list items
+        const todoListDiv = document.createElement('div');
+        todoListDiv.classList.add("Todo_List");
+        todoDiv.appendChild(todoListDiv);
+
+        //make checkboxes for DIV
+        const todos = stickyNote_object.todos;
+        todos.forEach(todo => {
+
+            const todoLI = document.createElement('li');
+            todoLI.classList.add('todoLI');
+
+            const todoLabel = document.createElement("label");
+            todoLabel.htmlFor = "id";
+            todoLabel.appendChild(document.createTextNode(todo))
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = "checkbox";
+            checkbox.name = "checks";
+            checkbox.value = todo;
+            checkbox.classList.add('checkbox');
+
+            todoLI.appendChild(checkbox);
+            todoLI.appendChild(todoLabel);
+            todoListDiv.appendChild(todoLI);
+        });
+        
         // Populate expanded view with sticky note details
         expandedView.innerHTML = `
             <h3>Task Details</h3>
@@ -300,9 +336,10 @@ class DOM_Elements {
             <p><strong>Due Date:</strong> ${stickyNote_object.dueDate.toDateString()}</p>
             <p><strong>Priority:</strong> ${stickyNote_object.priority}</p>
             <p><strong>Project:</strong> ${stickyNote_object.project}</p>
-            <p><strong>To-Dos:</strong> ${stickyNote_object.todos}</p>
             <p><strong>Notes:</strong> ${stickyNote_object.notes}</p>
         `;
+
+        expandedView.appendChild(todoDiv);
 
         // Create Delete button
         const deleteButton = document.createElement('button');
