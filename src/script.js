@@ -18,6 +18,7 @@ class stickyNote {
 }
 
 class DOM_Elements {
+    static projects = ['Work', 'School', 'Home']; // Pre-existing projects
 
     createStickyNoteForm() {
         // Create the form using JavaScript
@@ -57,6 +58,7 @@ class DOM_Elements {
         titleInput.id = 'title';
         titleInput.name = 'title';
         titleInput.required = true;
+        titleInput.value = "Fight Club" //default value
         fieldset.appendChild(createFormGroup('Task Title:', titleInput));
     
         // Due date input
@@ -65,6 +67,7 @@ class DOM_Elements {
         dueDateInput.id = 'dueDate';
         dueDateInput.name = 'dueDate';
         dueDateInput.required = true;
+        dueDateInput.value = new Date(); //default value
         fieldset.appendChild(createFormGroup('Due Date:', dueDateInput));
     
         // Priority select
@@ -72,6 +75,7 @@ class DOM_Elements {
         prioritySelect.id = 'priority';
         prioritySelect.name = 'priority';
         prioritySelect.required = true;
+        prioritySelect.value = "high" //default value
     
         const priorities = ['high', 'medium', 'low'];
         priorities.forEach(priority => {
@@ -89,8 +93,8 @@ class DOM_Elements {
         projectSelect.name = 'project';
         projectSelect.required = false;
     
-        const projects = ['Work', 'School', 'Home']; // Pre-existing projects
-        projects.forEach(project => {
+
+        DOM_Elements.projects.forEach(project => {
           const option = document.createElement('option');
           option.value = project;
           option.innerText = project;
@@ -131,6 +135,7 @@ class DOM_Elements {
         todosInput.id = 'todos';
         todosInput.name = 'todos';
         todosInput.required = true;
+        todosInput.value = "run, jump, climb"; //default value
         fieldset.appendChild(createFormGroup('List of To-Dos (separated by commas):', todosInput));
     
         // Notes textarea
@@ -138,6 +143,7 @@ class DOM_Elements {
         notesTextarea.id = 'notes';
         notesTextarea.name = 'notes';
         notesTextarea.rows = 4;
+        notesTextarea.value = "this is a test note"; //default value
         fieldset.appendChild(createFormGroup('Optional Notes:', notesTextarea));
     
         // Append fieldset to the form
@@ -162,7 +168,7 @@ class DOM_Elements {
           const todos = document.getElementById('todos').value.split(',');
           const notes = document.getElementById('notes').value;
           const project = projectSelect.value === 'add-new' 
-            ? (projects.push(document.getElementById('newProject').value), document.getElementById('newProject').value)
+            ? (DOM_Elements.projects.push(document.getElementById('newProject').value), document.getElementById('newProject').value)
             : projectSelect.value;
           let dueDate = new Date(dueDateString);
           const task = {
@@ -175,8 +181,8 @@ class DOM_Elements {
           };
 
           let sticky = new stickyNote(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
-          DOM.addStickyNotes(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
-          DOM.populateProjects(projects, stickyNote.stickyNotes);
+          DOM.addStickyNotes(sticky.title, sticky.dueDate, sticky.priority, sticky.project, sticky.todos, sticky.notes);
+          DOM.populateProjects(DOM_Elements.projects, stickyNote.stickyNotes);
                   // Update the project dropdown and populate projects without calling a separate function
           DOM.createStickyNoteForm();
           //create new task div with inputed information and move to expanded view section
@@ -313,8 +319,8 @@ class DOM_Elements {
             console.log(stickyNote.stickyNotes);
             expandedView.remove();  // Remove the expanded view after deletion
             this.resetTaskDivs();
-            this.populateProjects(projects, stickyNote.stickyNotes);
-
+            this.populateProjects(DOM_Elements.projects, stickyNote.stickyNotes);
+            this.populateTasks(stickyNote.stickyNotes);
             this.createStickyNoteForm();  // Recreate the form
         });
 
