@@ -61,6 +61,21 @@ html, body {
     gap: 5px;
   }
 
+  .expanded-view{
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    padding: 5px;
+  }
+
+  .expanded-view h3{
+    text-align: center;
+  }
+
+  .expanded-view button {
+    flex-direction: row;
+  }
+
   label {
     display: block;
     margin-bottom: 5px;
@@ -77,3 +92,4 @@ html, body {
   legend {
     font-weight: bold;
   }
+

@@ -20,12 +20,6 @@ class stickyNote {
 class DOM_Elements {
 
     createStickyNoteForm() {
-        //If a current task is expanded, delete and then create form
-
-        // if (form) {
-        //     form.remove();
-        // }
-
         // Create the form using JavaScript
         const formContainer = document.getElementById('project');
     
@@ -165,8 +159,9 @@ class DOM_Elements {
           const priority = document.getElementById('priority').value;
           const todos = document.getElementById('todos').value.split(',');
           const notes = document.getElementById('notes').value;
-          const project = projectSelect.value === 'add-new' ? document.getElementById('newProject').value : projectSelect.value;
-    
+          const project = projectSelect.value === 'add-new' 
+            ? (projects.push(document.getElementById('newProject').value), document.getElementById('newProject').value)
+            : projectSelect.value;
           let dueDate = new Date(dueDateString);
           const task = {
             title,
@@ -179,6 +174,7 @@ class DOM_Elements {
 
           let sticky = new stickyNote(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
           DOM.addStickyNotes(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
+          DOM.populateProjects(projects, stickyNote.stickyNotes);
           //create new task div with inputed information and move to expanded view section
           //seperate function to add also to projects tab
         });
@@ -313,7 +309,8 @@ class DOM_Elements {
             console.log(stickyNote.stickyNotes);
             expandedView.remove();  // Remove the expanded view after deletion
             this.resetTaskDivs();
-            this.populateTasks(stickyNote.stickyNotes);
+            this.populateProjects(projects, stickyNote.stickyNotes);
+
             this.createStickyNoteForm();  // Recreate the form
         });
 
@@ -386,7 +383,39 @@ class DOM_Elements {
         objectTaskArray.forEach((note) => {
             this.addStickyNotes(note.title, note.dueDate, note.priority, note.project, note.todos, note.notes);
         });
-    }    
+    }
+    
+    populateProjects(projectArray, taskData){
+        //for each project in the project array create a div with the name of the project
+        //Make it so each div can be clicked with an event listener and re-populate the for that specific project in the expanded tasks
+
+        const activeProjects = projectArray.filter(project => 
+            taskData.some(stickyNote => stickyNote.project === project)
+        );
+
+        const myProjectsDiv = document.getElementById('projectsList')
+        myProjectsDiv.innerHTML = ''; // Reset the list before adding new projects
+
+        activeProjects.forEach((project) => {
+            const projectDiv = document.createElement("div");
+            projectDiv.classList.add('projectDiv');
+            projectDiv.innerText = project;
+
+            projectDiv.addEventListener('click', () => {
+                const filteredTasks = taskData.filter(stickyNote => stickyNote.project === project);
+
+                this.clearTasks();
+                this.resetTaskDivs();
+                this.populateTasks(filteredTasks);
+            })
+
+
+            myProjectsDiv.appendChild(projectDiv);
+        });
+
+    }
+
+
 }
 
 
