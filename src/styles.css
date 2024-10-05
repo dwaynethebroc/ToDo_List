@@ -76,17 +76,9 @@ html, body {
     flex-direction: row;
   }
 
-  .Todo_List {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .todoLI{
-    display: flex;
+  .todoLI {
     vertical-align: middle;
   }
-
-
 
   label {
     display: block;

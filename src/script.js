@@ -4,8 +4,10 @@ import "./styles.css";
 
 class stickyNote {
     static stickyNotes = [];
+    static idNumber = 1;
 
     constructor(title, dueDate, priority, project, toDos, notes){
+        this.id = stickyNote.idNumber++;
         this.title = title;
         this.dueDate = dueDate;
         this.priority = priority;
@@ -14,6 +16,16 @@ class stickyNote {
         this.notes = notes;
 
         stickyNote.stickyNotes.push(this);
+    }
+
+    deleteStickyNoteById(id) {
+        const index = stickyNote.stickyNotes.findIndex(note => note.id === id);
+        if (index !== -1) {
+            stickyNote.stickyNotes.splice(index, 1);
+            return true;  // Deletion successful
+        } else {
+            return false; // No matching id
+        }
     }
 }
 
@@ -58,7 +70,7 @@ class DOM_Elements {
         titleInput.id = 'title';
         titleInput.name = 'title';
         titleInput.required = true;
-        titleInput.value = "Fight Club" //default value
+        titleInput.value = 'Fight Club'; // Set blank or keep previous value if form is refreshed
         fieldset.appendChild(createFormGroup('Task Title:', titleInput));
     
         // Due date input
@@ -67,7 +79,7 @@ class DOM_Elements {
         dueDateInput.id = 'dueDate';
         dueDateInput.name = 'dueDate';
         dueDateInput.required = true;
-        dueDateInput.value = new Date(); //default value
+        dueDateInput.value = dueDateInput.value || new Date().toISOString().split('T')[0]; // Default to today's date
         fieldset.appendChild(createFormGroup('Due Date:', dueDateInput));
     
         // Priority select
@@ -181,7 +193,7 @@ class DOM_Elements {
           };
 
           let sticky = new stickyNote(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
-          DOM.addStickyNotes(task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
+          DOM.addStickyNotes(sticky.id, task.title, task.dueDate, task.priority, task.project, task.todos, task.notes);
           DOM.populateProjects(DOM_Elements.projects, stickyNote.stickyNotes);
                   // Update the project dropdown and populate projects without calling a separate function
           DOM.createStickyNoteForm();
@@ -190,7 +202,7 @@ class DOM_Elements {
         });
     }
 
-    addStickyNotes(title, dueDate, priority, project, todos, notes) {
+    addStickyNotes(id, title, dueDate, priority, project, todos, notes) {
         const todayDiv = document.getElementById('today');
         const weekDiv = document.getElementById('thisWeek');
         const monthDiv = document.getElementById('thisMonth');
@@ -201,7 +213,16 @@ class DOM_Elements {
         const taskDiv = document.createElement('div');
         taskDiv.classList.add('task');
         taskDiv.innerHTML = `<strong>Title:</strong> ${title} <strong>Due Date:</strong> ${shortenedDate}`;
-        taskDiv.source_data = {title, dueDate, priority, project, todos, notes}
+        //need to pass id Number
+        taskDiv.source_data = {
+            id,
+            title, 
+            dueDate, 
+            priority, 
+            project, 
+            todos, 
+            notes
+        };
         console.log(taskDiv.source_data);
         taskDiv.addEventListener('click', () => this.expandStickyNote(taskDiv.source_data))
 
@@ -324,7 +345,7 @@ class DOM_Elements {
             checkbox.id = todo;
             checkbox.classList.add('checkbox');
 
-            todoLI.appendChild(checkbox);
+            todoLabel.appendChild(checkbox);
             todoLI.appendChild(todoLabel);
             todoListDiv.appendChild(todoLI);
         });
@@ -347,17 +368,16 @@ class DOM_Elements {
         deleteButton.innerText = 'Delete Task';
         deleteButton.addEventListener('click', () => {
             console.log(stickyNote.stickyNotes);
+
             // Delete the task from stickyNotes array
-            stickyNote.stickyNotes = stickyNote.stickyNotes.filter(note => 
-                note.title !== stickyNote_object.title || 
-                note.dueDate.toISOString() !== stickyNote_object.dueDate.toISOString() ||
-                note.priority !== stickyNote_object.priority
-            );
+            stickyNote.deleteStickyNoteById(stickyNote_object.id);
+
             console.log(stickyNote.stickyNotes);
+
             expandedView.remove();  // Remove the expanded view after deletion
             this.resetTaskDivs();
+            this.populateTasks();
             this.populateProjects(DOM_Elements.projects, stickyNote.stickyNotes);
-            this.populateTasks(stickyNote.stickyNotes);
             this.createStickyNoteForm();  // Recreate the form
         });
 
