@@ -13,11 +13,11 @@ class stickyNote {
         this.dueDate = dueDate;
         this.priority = priority;
         this.project = project;
-        this.toDos = toDos;
+        this.todos = toDos;
         this.notes = notes;
 
         stickyNote.stickyNotes.push(this);
-        stickyNote.addNoteToLocalStorage(this.stickyNotes);
+        this.addNoteToLocalStorage(stickyNote.stickyNotes);
     }
 
     addNoteToLocalStorage(taskArray) {
@@ -25,9 +25,8 @@ class stickyNote {
     }
 
     retrieveTasksLocalStorage() {
-        const objectTask = JSON.parse(localStorage.getItem('tasks')) //Get's task object and converts back to object
-        console.log(objectTask);
-        objectTask;
+        const objectTask = JSON.parse(localStorage.getItem('tasks')) || []; //Get's task object and converts back to object
+        return objectTask;
     }
 }
 
@@ -210,8 +209,17 @@ class DOM_Elements {
         const monthDiv = document.getElementById('thisMonth');
         const futureDiv = document.getElementById('futureDiv');
 
+        let shortenedDate;
+    
+        if (typeof dueDate === "object") {
+            shortenedDate = dueDate.toISOString().slice(0, 10);
+        } else {
+            shortenedDate = dueDate.slice(0, 10);
+        }
+        //
 
-        const shortenedDate = dueDate.toISOString().slice(0, 10);
+        dueDate = new Date(dueDate)
+        
 
         const taskDiv = document.createElement('div');
         taskDiv.classList.add('task');
@@ -266,6 +274,8 @@ class DOM_Elements {
         const index = stickyNote.stickyNotes.findIndex(note => note.id === id);
         if (index !== -1) {
             stickyNote.stickyNotes.splice(index, 1);
+            stickyNote.prototype.addNoteToLocalStorage(stickyNote.stickyNotes)
+            console.log(stickyNote.stickyNotes)
             return true;  // Deletion successful
         } else {
             return false; // No matching id
@@ -310,7 +320,6 @@ class DOM_Elements {
     expandStickyNote(stickyNote_object) {
         const currentProjectDiv = document.getElementById('project');
 
-        console.log(stickyNote_object);
 
         // Remove the current form
         const form = document.getElementById('taskForm');
@@ -346,12 +355,10 @@ class DOM_Elements {
         //connect ID of stickyNote_object to specific obejct in the stickyNotes array and get the todos from there
         let todos;
         stickyNote.stickyNotes.forEach(sticky => {
-            console.log(sticky);
             if (stickyNote_object.id === sticky.id){
-                todos = sticky.toDos; 
+                todos = sticky.todos; 
             }
         });
-        console.log(todos);
         todos.forEach(todo => {
 
             const todoLIDiv = document.createElement('div');
@@ -389,12 +396,11 @@ class DOM_Elements {
         deleteButton.classList.add('delete');
         deleteButton.innerText = 'Delete Task';
         deleteButton.addEventListener('click', () => {
-            console.log(stickyNote.stickyNotes);
+
 
             // Delete the task from stickyNotes array
             this.deleteStickyNoteById(stickyNote_object.id);
 
-            console.log(stickyNote.stickyNotes);
 
             expandedView.remove();  // Remove the expanded view after deletion
             this.resetTaskDivs();
@@ -524,11 +530,28 @@ class DOM_Elements {
 
     }
 
-
+    isThereLocalStorage(){
+        const objectTaskArrays = stickyNote.prototype.retrieveTasksLocalStorage();
+        return objectTaskArrays && objectTaskArrays.length > 0 ? objectTaskArrays : false;
+    }
 }
 
 
 
 
 const DOM = new DOM_Elements;
-DOM.createStickyNoteForm();
+const LSArray = DOM.isThereLocalStorage();
+
+//If there is local storage, take tasks and populate tasks, projects, and show form
+if (LSArray) {
+    //populate tasks
+    DOM.clearTasks();
+    DOM.resetTaskDivs();
+    DOM.populateTasks(LSArray);
+    DOM.populateProjects(DOM_Elements.projects, LSArray);
+    DOM.createStickyNoteForm();  // Recreate the form
+    stickyNote.stickyNotes = LSArray; 
+    console.log(stickyNote.stickyNotes)
+} else {
+    DOM.createStickyNoteForm();
+}
