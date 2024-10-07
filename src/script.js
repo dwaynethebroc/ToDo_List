@@ -342,22 +342,22 @@ class DOM_Elements {
         console.log(todos);
         todos.forEach(todo => {
 
-            const todoLI = document.createElement('li');
-            todoLI.classList.add('todoLI');
+            const todoLIDiv = document.createElement('div');
+            todoLIDiv.classList.add('todoLIDiv');
 
             const todoLabel = document.createElement("label");
             todoLabel.htmlFor = todo;
-            todoLabel.appendChild(document.createTextNode(todo))
+            todoLabel.textContent = todo;
+            todoLabel.classList.add('checkboxlabel');
             
             const checkbox = document.createElement('input');
             checkbox.type = "checkbox";
-            checkbox.name = "checks";
             checkbox.id = todo;
             checkbox.classList.add('checkbox');
 
-            todoLabel.appendChild(checkbox);
-            todoLI.appendChild(todoLabel);
-            todoListDiv.appendChild(todoLI);
+            todoLIDiv.appendChild(checkbox);
+            todoLIDiv.appendChild(todoLabel);
+            todoListDiv.appendChild(todoLIDiv);
         });
         
         // Populate expanded view with sticky note details

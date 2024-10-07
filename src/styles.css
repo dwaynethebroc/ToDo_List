@@ -74,11 +74,30 @@ html, body {
 
   .expanded-view button {
     flex-direction: row;
+    gap: 5px;
   }
 
-  .todoLI {
-    vertical-align: middle;
+  .Todo_List {
+    display: flex;
+    flex-direction: column;
   }
+
+  .todoLIDiv {
+    display: flex;
+}
+
+  .checkboxlabel {
+    width: 100%;
+    vertical-align: middle;
+ }
+  .checkbox {
+    width: 100px;
+ }
+
+  .checkbox:checked + .checkboxlabel{
+    text-decoration: line-through;
+}
+
 
   label {
     display: block;
