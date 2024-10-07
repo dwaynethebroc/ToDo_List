@@ -17,16 +17,6 @@ class stickyNote {
 
         stickyNote.stickyNotes.push(this);
     }
-
-    deleteStickyNoteById(id) {
-        const index = stickyNote.stickyNotes.findIndex(note => note.id === id);
-        if (index !== -1) {
-            stickyNote.stickyNotes.splice(index, 1);
-            return true;  // Deletion successful
-        } else {
-            return false; // No matching id
-        }
-    }
 }
 
 class DOM_Elements {
@@ -208,13 +198,14 @@ class DOM_Elements {
         const monthDiv = document.getElementById('thisMonth');
         const futureDiv = document.getElementById('futureDiv');
 
-        const shortenedDate = dueDate.toISOString().split('T')[0];
+
+        const shortenedDate = dueDate.toISOString().slice(0, 10);
 
         const taskDiv = document.createElement('div');
         taskDiv.classList.add('task');
         taskDiv.innerHTML = `<strong>Title:</strong> ${title} <strong>Due Date:</strong> ${shortenedDate}`;
         //need to pass id Number
-        taskDiv.source_data = {
+        const task = {
             id,
             title, 
             dueDate, 
@@ -223,8 +214,7 @@ class DOM_Elements {
             todos, 
             notes
         };
-        console.log(taskDiv.source_data);
-        taskDiv.addEventListener('click', () => this.expandStickyNote(taskDiv.source_data))
+        taskDiv.addEventListener('click', () => this.expandStickyNote(task))
 
 
         if (priority === "high"){
@@ -257,6 +247,16 @@ class DOM_Elements {
         } 
         else {
             futureDiv.appendChild(taskDiv);
+        }
+    }
+
+    deleteStickyNoteById(id) {
+        const index = stickyNote.stickyNotes.findIndex(note => note.id === id);
+        if (index !== -1) {
+            stickyNote.stickyNotes.splice(index, 1);
+            return true;  // Deletion successful
+        } else {
+            return false; // No matching id
         }
     }
 
@@ -298,6 +298,8 @@ class DOM_Elements {
     expandStickyNote(stickyNote_object) {
         const currentProjectDiv = document.getElementById('project');
 
+        console.log(stickyNote_object);
+
         // Remove the current form
         const form = document.getElementById('taskForm');
         if (form) {
@@ -329,7 +331,15 @@ class DOM_Elements {
         todoDiv.appendChild(todoListDiv);
 
         //make checkboxes for DIV
-        const todos = stickyNote_object.todos;
+        //connect ID of stickyNote_object to specific obejct in the stickyNotes array and get the todos from there
+        let todos;
+        stickyNote.stickyNotes.forEach(sticky => {
+            console.log(sticky);
+            if (stickyNote_object.id === sticky.id){
+                todos = sticky.toDos; 
+            }
+        });
+        console.log(todos);
         todos.forEach(todo => {
 
             const todoLI = document.createElement('li');
@@ -370,13 +380,13 @@ class DOM_Elements {
             console.log(stickyNote.stickyNotes);
 
             // Delete the task from stickyNotes array
-            stickyNote.deleteStickyNoteById(stickyNote_object.id);
+            this.deleteStickyNoteById(stickyNote_object.id);
 
             console.log(stickyNote.stickyNotes);
 
             expandedView.remove();  // Remove the expanded view after deletion
             this.resetTaskDivs();
-            this.populateTasks();
+            this.populateTasks(stickyNote.stickyNotes);
             this.populateProjects(DOM_Elements.projects, stickyNote.stickyNotes);
             this.createStickyNoteForm();  // Recreate the form
         });
@@ -446,10 +456,17 @@ class DOM_Elements {
         // Reference the expanded tasks div
         const expandedTasksDiv = document.getElementById('tasks');
     
-        // If there are tasks in the array, add them to the appropriate divs
-        objectTaskArray.forEach((note) => {
-            this.addStickyNotes(note.title, note.dueDate, note.priority, note.project, note.todos, note.notes);
-        });
+        if (objectTaskArray.length === 0){
+            return false;
+        }
+        else {
+            // If there are tasks in the array, add them to the appropriate divs
+            objectTaskArray.forEach((note) => {
+                this.addStickyNotes(note.id, note.title, note.dueDate, note.priority, note.project, note.todos, note.notes);
+            });
+        }
+        
+        
     }
     
     populateProjects(projectArray, taskData){
