@@ -6,6 +6,7 @@ class stickyNote {
     static stickyNotes = [];
     static idNumber = 1;
 
+
     constructor(title, dueDate, priority, project, toDos, notes){
         this.id = stickyNote.idNumber++;
         this.title = title;
@@ -16,6 +17,17 @@ class stickyNote {
         this.notes = notes;
 
         stickyNote.stickyNotes.push(this);
+        stickyNote.addNoteToLocalStorage(this.stickyNotes);
+    }
+
+    addNoteToLocalStorage(taskArray) {
+        localStorage.setItem('tasks', JSON.stringify(taskArray)); // localStorage.setItem("keyName", value)
+    }
+
+    retrieveTasksLocalStorage() {
+        const objectTask = JSON.parse(localStorage.getItem('tasks')) //Get's task object and converts back to object
+        console.log(objectTask);
+        objectTask;
     }
 }
 
