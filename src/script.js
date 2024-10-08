@@ -299,7 +299,6 @@ class DOM_Elements {
         
         //get dates of the current week  
         const first = currentDate.getDate() - currentDate.getDay(); // First day is the  day of the month - the day of the week  
-        const last = first + 6; // last day is the first day + 6   
         const firstday = new Date(currentDate.setDate(first));   
         const lastday = new Date(currentDate.setDate(currentDate.getDate()+6));
 
@@ -440,8 +439,6 @@ class DOM_Elements {
 
     resetTaskDivs(){
 
-        const expandedTasksDiv = document.getElementById('tasks')
-
         const todayDiv = document.getElementById('today');
         const weekDiv = document.getElementById('thisWeek');
         const monthDiv = document.getElementById('thisMonth');
@@ -472,8 +469,6 @@ class DOM_Elements {
 
     populateTasks(objectTaskArray) {
         // Reference the expanded tasks div
-        const expandedTasksDiv = document.getElementById('tasks');
-    
         if (objectTaskArray.length === 0){
             return false;
         }
