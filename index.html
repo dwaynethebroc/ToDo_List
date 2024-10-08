@@ -7,12 +7,31 @@
     <script defer src="main.js"></script></head>
     <body>
         <div class='content'>
-            <div class="menu">
-
+            <div class="nav">
+                <p>To-Do List</p>
             </div>
 
-            <div class="expanded_tasks">
+            <div class="menu">
+                <p>My Projects:</p>
+                <div id='projectsList'></div>
+            </div>
 
+            <div class="expanded_tasks" id ="tasks">
+                <div class="task_groups"id="today">
+                    <p>Today:</p>
+                </div>
+
+                <div class="task_groups" id="thisWeek">
+                    <p>This Week:</p>
+                </div>
+
+                <div class="task_groups" id="thisMonth">
+                    <p>This Month:</p>
+                </div>
+
+                <div class="task_groups" id="futureDiv">
+                    <p>In the Future:</p>
+                </div>
             </div>
 
             <div class="current_project_view" id='project'>
