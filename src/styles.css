@@ -23,9 +23,20 @@ html, body {
     grid-column: 1 / 2;
     border: solid black 1px;
 
-    font-size: 15px;
+    font-size: 18px;
     padding: 5px;
     gap: 5px;
+}
+
+#projectsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu p {
+    text-align: center;
+    font-weight: bold;
 }
 
 .expanded_tasks {
@@ -35,7 +46,9 @@ html, body {
 
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: space-between;
+    text-align: center;
+    font-size: 18px;
     padding: 5px;
 }
 
